@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kapatma Zamanlayıcı</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app" id="app" data-action="shutdown">
+
+    <div class="titlebar">
+      <div class="titlebar-left" data-tauri-drag-region>
+        <div class="titlebar-dot" id="titlebarDot"></div>
+        <div class="titlebar-title" data-i18n="appTitle">Kapatma Zamanlayıcı</div>
+      </div>
+      <div class="titlebar-drag-fill" data-tauri-drag-region></div>
+      <div class="titlebar-right">
+        <div class="titlebar-controls">
+          <button class="tb-btn" id="minimizeBtn" title="Sistem tepsisine gizle">–</button>
+          <button class="tb-btn close" id="closeBtn" title="Kapat">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <div class="col-ring">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 220 220">
+            <circle class="ring-bg" cx="110" cy="110" r="95"></circle>
+            <circle class="ring-fg" id="ringFg" cx="110" cy="110" r="95"
+                    stroke-dasharray="596.9" stroke-dashoffset="596.9"></circle>
+          </svg>
+          <div class="ring-center" id="ringCenter">
+            <div class="ring-idle-hint" data-i18n="idleHint">Hedef saati ve işlemi seç, sonra Başlat'a bas</div>
+          </div>
+        </div>
+
+        <div class="lang-dropdown" id="langDropdown" data-open="false">
+          <button class="lang-current" id="langCurrentBtn">
+            <span class="fi fi-tr" id="langCurrentFlag"></span>
+            <span id="langCurrentCode">TR</span>
+            <svg viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="lang-menu">
+            <button class="lang-item" data-lang="tr" data-active="true"><span class="fi fi-tr"></span><span>Türkçe</span></button>
+            <button class="lang-item" data-lang="en" data-active="false"><span class="fi fi-gb"></span><span>English</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-info">
+
+        <div>
+          <div class="section-label" data-i18n="currentTime">Şu anki saat</div>
+          <div class="lcd-box readonly">
+            <span class="u" id="ch">--</span><span class="lcd-sep">:</span><span class="u" id="cm">--</span><span class="lcd-sep">:</span><span class="u" id="cs">--</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label" data-i18n="targetTime">Hedef saat</div>
+          <div class="lcd-box editable" id="targetBox">
+            <input id="hh" type="text" inputmode="numeric" maxlength="2" value="00">
+            <span class="lcd-sep">:</span>
+            <input id="mm" type="text" inputmode="numeric" maxlength="2" value="00">
+            <span class="lcd-sep">:</span>
+            <input id="ss" type="text" inputmode="numeric" maxlength="2" value="00">
+          </div>
+          <div class="error-msg" id="errorMsg" data-i18n="errorMsg">Lütfen geçerli bir saat gir</div>
+        </div>
+
+        <div>
+          <div class="action-select" id="actionSelect">
+            <div class="action-opt" data-action="shutdown" data-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v8"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>
+              <span data-i18n="shutdown">Kapat</span>
+            </div>
+            <div class="action-opt" data-action="restart" data-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+              <span data-i18n="restart">Yeniden Başlat</span>
+            </div>
+            <div class="action-opt" data-action="logoff" data-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+              <span data-i18n="logoff">Oturumu Kapat</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="force-row">
+          <div class="force-text">
+            <div class="force-title" data-i18n="forceTitle">Zorla kapat</div>
+            <div class="force-sub" data-i18n="forceSub">Açık programlar işlemi engellerse, kaydetmeden sonlandırılır</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="forceToggle">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+
+        <div class="action-area">
+          <div id="idleActions" class="idle-actions">
+            <div class="actions">
+              <button class="btn btn-primary" id="startBtn" data-i18n="start">Başlat</button>
+            </div>
+          </div>
+          <div id="runningActions" class="running-actions">
+            <button class="btn btn-ghost" id="editBtn" data-i18n="edit">Düzenle</button>
+            <button class="btn btn-ghost" id="cancelBtn" data-i18n="cancel">İptal</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Geri sayım tamamlandığında gösterilen "işlem uygulanıyor" katmanı -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-card">
+      <div class="overlay-icon" id="overlayIcon"></div>
+      <div class="overlay-title" id="overlayTitle">Sistem kapatılıyor</div>
+      <div class="overlay-sub" id="overlaySub">Kaydetmediğin çalışmaları şimdi kaydet.</div>
+      <div class="overlay-count" id="overlayCount">10</div>
+      <button class="btn btn-ghost" id="overlayCancel" data-i18n="overlayCancel">İptal Et</button>
+    </div>
+  </div>
+
+  <!-- Zamanlayıcı çalışırken pencere kapatılmak istendiğinde gösterilen onay katmanı -->
+  <div class="overlay" id="closeConfirmOverlay">
+    <div class="overlay-card">
+      <div class="overlay-icon warn" id="closeConfirmIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+      </div>
+      <div class="overlay-title" id="closeConfirmTitle" data-i18n="closeConfirmTitle">Emin misiniz?</div>
+      <div class="overlay-sub" id="closeConfirmSub" data-i18n="closeConfirmSub">Zamanlayıcı hâlâ çalışıyor. Uygulamayı kapatmak istediğinize emin misiniz?</div>
+      <div class="overlay-actions">
+        <button class="btn btn-ghost" id="closeConfirmCancel" data-i18n="closeConfirmCancel">Devam Et</button>
+        <button class="btn btn-danger" id="closeConfirmOk" data-i18n="closeConfirmOk">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+<script src="main.js"></script>
+</body>
+</html>
